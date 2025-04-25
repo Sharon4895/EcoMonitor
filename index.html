@@ -2,225 +2,218 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoMonitor - Dashboard Agrícola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AgroMonitor Pro</title>
     
     <!-- Dependencias -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://kit.fontawesome.com/9d05a3393b.js" crossorigin="anonymous"></script>
-    
+
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f1c40f;
-            --danger-color: #e74c3c;
+            --primary: #2A9D8F;
+            --secondary: #264653;
+            --danger: #E76F51;
+            --warning: #E9C46A;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--secondary);
             min-height: 100vh;
         }
 
+        /* Header Estilizado */
         .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            background: linear-gradient(135deg, var(--secondary) 0%, #1a2a33 100%);
             color: white;
-            padding: 2rem;
-            border-radius: 0 0 25px 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
         }
 
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: var(--primary);
+            transform: rotate(-2deg);
+        }
+
+        /* Tarjetas de Sensor */
         .sensor-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.25rem;
             margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
             border-left: 4px solid;
+            position: relative;
         }
 
         .sensor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
         }
 
+        .sensor-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+
+        /* Gráficos */
         .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
             margin: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .sensor-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.9;
+        /* Diseño Móvil */
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .sensor-card {
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+            
+            .value-display {
+                font-size: 2rem !important;
+            }
         }
 
+        /* Indicadores */
         .value-display {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             font-weight: 600;
             margin: 0.5rem 0;
-            letter-spacing: -1px;
+            position: relative;
         }
 
         .unit {
             font-size: 1.1rem;
             color: #6c757d;
-            font-weight: 400;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-left: 0.5rem;
-            vertical-align: middle;
         }
 
         .data-age {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #95a5a6;
-            margin-top: 0.5rem;
+        }
+
+        /* Animaciones */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
-
 </head>
 <body>
     <header class="dashboard-header text-center">
         <h1 class="mb-3">
-            <i class="fas fa-seedling me-2"></i>EcoMonitor
-            <span class="status-indicator bg-success" title="Conectado"></span>
+            <i class="fas fa-seedling me-2"></i>AgroMonitor Pro
         </h1>
-        <p class="mb-0 text-muted">Monitoreo en tiempo real de parámetros agrícolas</p>
+        <p class="text-muted mb-0">Monitoreo Inteligente de Cultivos</p>
     </header>
 
-    <div class="container-lg">
-        <!-- Tarjetas de valores actuales -->
-        <div class="row g-4 mb-4">
+    <div class="container-lg py-4">
+        <div class="row g-3">
             <!-- Humedad -->
-            <div class="col-md-4">
-                <div class="sensor-card border-info">
-                    <div class="text-center">
-                        <i class="fas fa-tint sensor-icon text-info"></i>
-                        <h3>Humedad del Suelo</h3>
-                        <div class="value-display">
-                            <span id="currentHumidity">--</span><span class="unit">%</span>
+            <div class="col-12 col-md-4">
+                <div class="sensor-card border-start border-4 border-primary">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-tint fa-2x text-primary me-3"></i>
+                        <div>
+                            <h3 class="mb-0">Humedad</h3>
+                            <small class="text-muted">Suelo</small>
                         </div>
-                        <div class="data-age" id="humedadTime">hace -- seg</div>
+                    </div>
+                    <div class="value-display text-primary">
+                        <span id="currentHumidity">--</span><span class="unit">%</span>
+                    </div>
+                    <div class="data-age" id="humedadTime">
+                        <i class="fas fa-clock me-1"></i>Actualizado: <span>--</span>
                     </div>
                 </div>
             </div>
 
             <!-- Temperatura -->
-            <div class="col-md-4">
-                <div class="sensor-card border-danger">
-                    <div class="text-center">
-                        <i class="fas fa-thermometer-half sensor-icon text-danger"></i>
-                        <h3>Temperatura</h3>
-                        <div class="value-display">
-                            <span id="currentTemperature">--</span><span class="unit">°C</span>
+            <div class="col-12 col-md-4">
+                <div class="sensor-card border-start border-4 border-danger">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-thermometer-half fa-2x text-danger me-3"></i>
+                        <div>
+                            <h3 class="mb-0">Temperatura</h3>
+                            <small class="text-muted">Ambiente</small>
                         </div>
-                        <div class="data-age" id="temperaturaTime">hace -- seg</div>
+                    </div>
+                    <div class="value-display text-danger">
+                        <span id="currentTemperature">--</span><span class="unit">°C</span>
+                    </div>
+                    <div class="data-age" id="temperaturaTime">
+                        <i class="fas fa-clock me-1"></i>Actualizado: <span>--</span>
                     </div>
                 </div>
             </div>
 
             <!-- Iluminación -->
-            <div class="col-md-4">
-                <div class="sensor-card border-warning">
-                    <div class="text-center">
-                        <i class="fas fa-sun sensor-icon text-warning"></i>
-                        <h3>Iluminación</h3>
-                        <div class="value-display">
-                            <span id="currentIllumination">--</span><span class="unit">lux</span>
+            <div class="col-12 col-md-4">
+                <div class="sensor-card border-start border-4 border-warning">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-sun fa-2x text-warning me-3"></i>
+                        <div>
+                            <h3 class="mb-0">Iluminación</h3>
+                            <small class="text-muted">Lux</small>
                         </div>
-                        <div class="data-age" id="iluminacionTime">hace -- seg</div>
+                    </div>
+                    <div class="value-display text-warning">
+                        <span id="currentIllumination">--</span><span class="unit">lux</span>
+                    </div>
+                    <div class="data-age" id="iluminacionTime">
+                        <i class="fas fa-clock me-1"></i>Actualizado: <span>--</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Gráficos -->
-        <div class="row g-4">
-            <div class="col-md-4">
+        <div class="row g-3">
+            <div class="col-12">
                 <div class="chart-container">
-                    <div id="humedadChart"></div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <div id="temperaturaChart"></div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <div id="iluminacionChart"></div>
+                    <div id="mainChart" style="height: 300px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuración inicial
+        // Configuración
         const config = {
-            updateInterval: 2000, // 2 segundos
-            maxDataPoints: 20,   // Puntos a mantener en gráficos
-            simulation: true     // Modo simulación
-        };
-
-        // Inicialización de gráficos
-        const initChart = (container, title, color) => {
-            return Highcharts.chart(container, {
-                chart: {
-                    type: 'spline',
-                    backgroundColor: 'transparent',
-                    height: 300
-                },
-                title: { text: null },
-                colors: [color],
-                yAxis: {
-                    title: { text: null },
-                    gridLineColor: '#f0f0f0'
-                },
-                xAxis: {
-                    type: 'datetime',
-                    labels: { format: '{value:%H:%M}' }
-                },
-                legend: { enabled: false },
-                series: [{
-                    name: title,
-                    data: [],
-                    lineWidth: 2,
-                    marker: { enabled: false }
-                }],
-                plotOptions: {
-                    series: {
-                        animation: { duration: 300 },
-                        turboThreshold: 1000
-                    }
-                },
-                credits: { enabled: false }
-            });
-        };
-
-        // Instanciar gráficos
-        const charts = {
-            humedad: initChart('humedadChart', 'Humedad', '#3498db'),
-            temperatura: initChart('temperaturaChart', 'Temperatura', '#e74c3c'),
-            iluminacion: initChart('iluminacionChart', 'Iluminación', '#f1c40f')
+            updateInterval: 2000,
+            maxDataPoints: 15,
+            simulation: true
         };
 
         // Simulador de datos
-        class DataSimulator {
+        class DataGenerator {
             constructor() {
                 this.data = {
                     humedad: 65,
@@ -233,7 +226,7 @@
             generate() {
                 this.data = {
                     humedad: Math.max(0, Math.min(100, this.data.humedad + (Math.random() - 0.5) * 3)),
-                    temperatura: Math.max(-5, Math.min(45, this.data.temperatura + (Math.random() - 0.4) * 1.5)),
+                    temperatura: Math.max(-5, Math.min(45, this.data.temperatura + (Math.random() - 0.4) * 1.5),
                     iluminacion: Math.max(0, this.data.iluminacion + (Math.random() - 0.5) * 300),
                     timestamp: Date.now()
                 };
@@ -241,8 +234,56 @@
             }
         }
 
-        // Manejo de actualizaciones
-        const updateDisplay = (data) => {
+        // Inicializar gráficos
+        const initChart = () => {
+            return Highcharts.chart('mainChart', {
+                chart: {
+                    type: 'spline',
+                    backgroundColor: 'transparent',
+                    height: '100%'
+                },
+                title: { text: null },
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        format: '{value:%H:%M}'
+                    }
+                },
+                yAxis: {
+                    title: { text: null },
+                    labels: { format: '{value}' }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Humedad',
+                    data: [],
+                    color: '#2A9D8F',
+                    lineWidth: 2
+                }, {
+                    name: 'Temperatura',
+                    data: [],
+                    color: '#E76F51',
+                    lineWidth: 2
+                }, {
+                    name: 'Iluminación',
+                    data: [],
+                    color: '#E9C46A',
+                    lineWidth: 2
+                }],
+                plotOptions: {
+                    series: {
+                        marker: { enabled: false },
+                        animation: { duration: 300 }
+                    }
+                },
+                credits: { enabled: false }
+            });
+        };
+
+        // Actualizar interfaz
+        const updateUI = (data) => {
             const timeAgo = Math.floor((Date.now() - data.timestamp) / 1000);
             
             // Actualizar valores
@@ -251,34 +292,35 @@
             document.getElementById('currentIllumination').textContent = Math.floor(data.iluminacion);
             
             // Actualizar tiempos
-            document.querySelectorAll('.data-age').forEach(el => {
-                el.textContent = `hace ${timeAgo} seg`;
-            });
-
-            // Actualizar gráficos
-            Object.keys(charts).forEach(sensor => {
-                if (charts[sensor].series[0].data.length > config.maxDataPoints) {
-                    charts[sensor].series[0].addPoint([data.timestamp, data[sensor]], true, false);
-                } else {
-                    charts[sensor].series[0].addPoint([data.timestamp, data[sensor]]);
-                }
+            document.querySelectorAll('.data-age span').forEach(el => {
+                el.textContent = `${timeAgo} seg`;
             });
         };
 
-        // Iniciar simulación
-        if (config.simulation) {
-            const simulator = new DataSimulator();
-            setInterval(() => {
-                updateDisplay(simulator.generate());
-            }, config.updateInterval);
-            
-            // Primer update
-            updateDisplay(simulator.generate());
-        }
+        // Inicialización
+        window.addEventListener('DOMContentLoaded', () => {
+            const chart = initChart();
+            const simulator = new DataGenerator();
 
-        // Ajustar gráficos al redimensionar
-        window.addEventListener('resize', () => {
-            Object.values(charts).forEach(chart => chart.reflow());
+            // Simular datos
+            if(config.simulation) {
+                setInterval(() => {
+                    const data = simulator.generate();
+                    updateUI(data);
+                    
+                    // Actualizar gráficos
+                    ['humedad', 'temperatura', 'iluminacion'].forEach((metric, index) => {
+                        if(chart.series[index].data.length > config.maxDataPoints) {
+                            chart.series[index].addPoint([data.timestamp, data[metric]], true, false);
+                        } else {
+                            chart.series[index].addPoint([data.timestamp, data[metric]]);
+                        }
+                    });
+                }, config.updateInterval);
+            }
+
+            // Redimensionar
+            window.addEventListener('resize', () => chart.reflow());
         });
     </script>
 </body>
